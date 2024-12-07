@@ -13,28 +13,30 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['RESULT_FOLDER'], exist_ok=True)
 
 API_KEY = config.pappers_api_key
-PAPPERS_API_URL = 'https://api.pappers.fr/v2/entreprise'
-
+PAPPERS_API_URL = 'https://api.pappers.in/v1/company'
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    country = request.args.get('country', 'FR').upper()
+
     if request.method == 'POST':
         # Vérification du fichier uploadé
         if 'file' not in request.files or request.files['file'].filename == '':
             return render_template('index.html', error='Veuillez fournir un fichier texte valide.')
 
+        country = request.form.get('country', 'FR').upper()
         file = request.files['file']
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(filepath)
 
         # Traiter le fichier
-        result_filepath = process_file(filepath)
+        result_filepath = process_file(filepath, country)
         return redirect(url_for('download', filename=os.path.basename(result_filepath)))
 
-    return render_template('index.html')
+    return render_template('index.html', country=country)
 
 
-def process_file(filepath):
+def process_file(filepath, country):
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')  # Format : YYYYMMDD_HHMMSS
     result_filename = f'result_{timestamp}.xlsx'  # Nom du fichier avec timestamp
     result_filepath = os.path.join(app.config['RESULT_FOLDER'], result_filename)
@@ -48,10 +50,10 @@ def process_file(filepath):
     # Ajouter les en-têtes
     headers = [
         'Nom société', 'Adresse', 'Nom dirigeant',
-        'Email', 'Téléphone', 'SIREN', 'SIRET'
+        'Email', 'Téléphone', 'Numero d\'entreprise'
     ]
     headers2 = [
-        'Siren/Siret', 'Result'
+        'Numero d\'entreprise', 'Result'
     ]
     ws.append(headers)
     ws2.append(headers2)
@@ -65,54 +67,36 @@ def process_file(filepath):
             if not line:
                 continue
 
-            # Vérifier si la ligne est un numéro SIREN ou SIRET valide
-            if len(line) == 9 and line.isdigit():
-                params = {'siren': line}
-            elif len(line) == 14 and line.isdigit():
-                params = {'siret': line}
-            else:
-                print(f"Ligne invalide : {line}")
-                continue
+            params = {'api_token': API_KEY ,'company_number': line, 'country_code': country, 'fields': 'officers,ubos,financials,documents,certificates,publications,establishments,contacts'}
 
             # Appel à l'API Pappers avec en-tête Authorization
             response = requests.get(
                 PAPPERS_API_URL,
-                headers={
-                    'api-key': API_KEY
-                },
                 params=params
             )
 
             # Gestion de la réponse
             if response.status_code == 200:
                 data = response.json()
-                diffusable = data.get('diffusable')
-                if diffusable:
-                    # Extraire les données
-                    nom_societe = data.get('nom_entreprise', '')
-                    siege = data.get('siege', {})
-                    adresse = f"{siege.get('adresse_ligne_1', '')} {siege.get('code_postal', '')} {siege.get('ville', '')} {siege.get('pays', '')}"
-                    nom_dirigeant = (
-                        data.get('representants', [{}])[0].get('nom_complet', '')
-                        if data.get('representants') else ''
-                    )
-                    email = data.get('emails', [])[0] if data.get('emails') else ''
-                    telephone = data.get('telephones', [])[0] if data.get('telephones') else ''
-                    siren = data.get('siren', '')
-                    siret = data.get('siege', {}).get('siret', '')
+                nom_societe = data.get('name', '')
+                head_office = data.get('head_office', {})
+                adresse = f"{head_office.get('address_line_1', '')} {head_office.get('postal_code', '')} {head_office.get('city', '')} {head_office.get('country', '')}"
+                nom_dirigeant = (
+                    f"{data.get('officers', [{}])[0].get('last_name', '')} {data.get('officers', [{}])[0].get('first_name', '')}"
+                    if data.get('officers') else ''
+                )
+                email = data.get('emails', [])[0] if data.get('emails') else ''
+                telephone = data.get('telephones', [])[0] if data.get('telephones') else ''
+                company_number = data.get('company_number', '')
 
-                    # Ajouter la ligne au tableau
-                    ws.append([
-                        nom_societe, adresse, nom_dirigeant,
-                        email, telephone, siren, siret
-                    ])
-                    ws2.append([
-                        line, "Information found"
-                    ])
-                else:
-                    ws2.append([
-                        line, "Not diffusable"
-                    ])
+                # Ajouter la ligne au tableau
+                ws.append([
+                    nom_societe, adresse, nom_dirigeant,
+                    email, telephone, company_number
+                ])
+                ws2.append([
+                    line, "Information found"
+                ])
             else:
                 ws2.append([
                     line, f"{response.status_code} - {response.text}"
