@@ -15,6 +15,8 @@ os.makedirs(app.config['RESULT_FOLDER'], exist_ok=True)
 API_KEY = config.pappers_api_key
 PAPPERS_API_URL = 'https://api.pappers.in/v1/company'
 
+COUNTRIES = {'FR': 'France', 'BE': 'Belgium', 'CH': 'Switzerland'}
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     country = request.args.get('country', 'FR').upper()
@@ -80,7 +82,10 @@ def process_file(filepath, country):
                 data = response.json()
                 nom_societe = data.get('name', '')
                 head_office = data.get('head_office', {})
-                adresse = f"{head_office.get('address_line_1', '')} {head_office.get('postal_code', '')} {head_office.get('city', '')} {head_office.get('country', '')}"
+                country_found = head_office.get('country', '')
+                if country_found is None:
+                    country_found = COUNTRIES[country]
+                adresse = f"{head_office.get('address_line_1', '')} {head_office.get('postal_code', '')} {head_office.get('city', '')} {country_found}"
                 nom_dirigeant = (
                     f"{data.get('officers', [{}])[0].get('last_name', '')} {data.get('officers', [{}])[0].get('first_name', '')}"
                     if data.get('officers') else ''
