@@ -3,6 +3,7 @@ import os
 import requests
 import config
 from openpyxl import Workbook
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -34,7 +35,9 @@ def index():
 
 
 def process_file(filepath):
-    result_filepath = os.path.join(app.config['RESULT_FOLDER'], 'result.xlsx')
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')  # Format : YYYYMMDD_HHMMSS
+    result_filename = f'result_{timestamp}.xlsx'  # Nom du fichier avec timestamp
+    result_filepath = os.path.join(app.config['RESULT_FOLDER'], result_filename)
 
     # Créer un workbook Excel
     wb = Workbook()
