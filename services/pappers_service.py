@@ -1,6 +1,12 @@
 import requests
 from config import Config
+from services.country_service import *
 from models.pappers_info import PappersInfo
+
+criteria_dictionnary = {'status': 'Active', 'postal_code': 'Code Postal', 'local_legal_form_code': 'Forme juridique', 'legal_situation_code': 'Situation juridique',
+                        'turnover_min': 'Chiffre d\'affaire minimum', 'turnover_max': 'Chiffre d\'affaire maximum',
+                        'net_income_min': 'Résultat minimum', 'net_income_max': 'Résultat maximum',
+                        'workforce_range_min': 'Effectif minimum', 'workforce_range_max': 'Effectif maximum'}
 
 def get_search_query(request):
     country = request.form.get('country').upper()
@@ -84,23 +90,44 @@ def get_workforce_number(eff):
     elif workforce < 500000:
         return 9
 
-def search_companies_request(country, search_request):
-    pappers_information = []
+def get_criterias(pappers_query, country):
+    criterias = []
+    for criteria in pappers_query.split('&'):
+        splitted = criteria.split('=')
+        key = splitted[0]
+        value = splitted[1]
+        if criteria_dictionnary.get(key):
+            criterias.append({'key': criteria_dictionnary[key], 'value': get_value(key, value, country)})
+        else:
+            criterias.append({'key': key, 'value': get_value(key, value, country)})
 
+    return criterias
+
+def get_value(key, value, country):
+    if key == "country_code":
+        return Config.COUNTRIES.get(value)
+    if key == "postal_code":
+        return find_postal_code(country, value)
+    if key == "local_legal_form_code":
+        return find_legal_forms(country, value)
+    if key == "legal_situation_code":
+        return find_legal_situations(country, value)
+    else:
+        return value
+
+def search_companies_request(search_request):
     search_request = f'{search_request}&api_token={Config.PAPPERS_API_KEY}'
 
-    # Appel à l'API Pappers avec en-tête Authorization
     response = requests.get(
         f'{Config.PAPPERS_API_SEARCH_URL}?{search_request}'
     )
 
-    # Gestion de la réponse
     if response.status_code == 200:
         return response
     return None
 
-def get_number_of_companies(country, search_request):
-    response = search_companies_request(country, search_request)
+def get_number_of_companies(search_request):
+    response = search_companies_request(search_request)
     if response:
         results = response.json()
         return results.get("total")
@@ -116,7 +143,7 @@ def search_companies(country, search_request, nb_company):
 
     for i in range(nb_request):
         page_search_request = f'{search_request}&page={i + 1}&par_page=20'
-        response = search_companies_request(country, page_search_request)
+        response = search_companies_request(page_search_request)
 
         if response:
             results = response.json()
@@ -137,14 +164,6 @@ def search_companies(country, search_request, nb_company):
                 telephone = data.get('telephones', [])[0] if data.get('telephones') else ''
                 company_number = data.get('company_number', '')
 
-                pappers_information.append(
-                    {'info': PappersInfo(nom_societe, adresse, nom_dirigeant, email, telephone, company_number),
-                     'found': 'Information found'}
-                )
-            else:
-                pappers_information.append(
-                    {'info': None,
-                     'found': f"{response.status_code} - {response.text}"}
-                )
+                pappers_information.append(PappersInfo(nom_societe, adresse, nom_dirigeant, email, telephone, company_number))
 
     return pappers_information

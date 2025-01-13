@@ -32,6 +32,7 @@ document.addEventListener("click", (event) => {
 
 const inputActivity = document.getElementById("activity");
 const listActivity = document.getElementById("autocomplete-list-activity");
+const countryCode = document.getElementById("countryCode");
 
 inputActivity.addEventListener("input", async () => {
     const query = inputActivity.value.trim();
@@ -40,7 +41,7 @@ inputActivity.addEventListener("input", async () => {
         return;
     }
 
-    const response = await fetch(`/autocompleteActivity?q=${encodeURIComponent(query)}`);
+    const response = await fetch(`/autocompleteActivity?countryCode=${countryCode.value}&q=${encodeURIComponent(query)}`);
     const results = await response.json();
 
     listActivity.innerHTML = ""; // Clear previous results
