@@ -8,7 +8,7 @@ from services.country_service import *
 def index():
     country = request.args.get('country', 'BE').upper()
     legal_situations = get_legal_situations(country)
-    legal_forms = get_legal_situations(country)
+    legal_forms = get_legal_forms(country)
 
     return render_template('index.html', country=country, legal_situations=legal_situations, legal_forms=legal_forms)
 
@@ -32,7 +32,7 @@ def download():
 
 @bp.route("/autocompletePostalCode", methods=["GET"])
 def autocompletePostalCode():
-    country = request.form.get('country').upper()
+    country = request.args.get('countryCode').upper()
     postal_codes = get_postal_codes(country)
     query = request.args.get("q", "").lower()
     results = [

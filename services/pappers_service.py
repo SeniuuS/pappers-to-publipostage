@@ -21,13 +21,6 @@ def get_search_query(request):
     min_eff = request.form.get('minEff', 0)
     max_eff = request.form.get('maxEff', 0)
 
-    print(in_activity)
-    print(min_eff)
-    print(max_eff)
-    print(min_ca)
-    print(legal_situation)
-    print(legal_form)
-
     query = f'country_code={country}'
     if in_activity == 'on':
         query = f'{query}&status=active'

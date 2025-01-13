@@ -17,7 +17,7 @@ def find_postal_code(country, search_postal_code):
     postal_codes = get_postal_codes(country)
     for postal_code in postal_codes:
         if postal_code["code_postal"] == search_postal_code:
-            return postal_code
+            return f'{postal_code["code_postal"]} - {postal_code["commune"]}'
     return search_postal_code
 
 def find_legal_situations(country, search_legal_situations):
