@@ -21,8 +21,11 @@
         <form action="/download" method="post">
             <input type="hidden" name="country" value="{{ country }}">
             <input type="hidden" name="query" value="{{ query }}">
-            <input type="hidden" name="nb_company" value="{{ nb_company }}">
             <p>Nombre d'entreprises trouvées : {{ nb_company }}</p>
+            <div class="form-floating mb-4">
+                <input type="number" name="nbExport" id="nbExport" class="form-control" min="0" max="200" value="200" step="20">
+                <label for="nbExport">Nombre d'export (multiple de 20)</label>
+            </div>
             <button type="submit" class="btn btn-primary">Download</button>
         </form>
     </main>

@@ -137,10 +137,10 @@ def search_companies(country, search_request, nb_company):
     pappers_information = []
 
     nb_request = int(nb_company) / nb_company_per_page
-    if nb_request % 2 != 0:
-        nb_request = int(nb_request) + 1
+    if nb_request != 1 and nb_request % 2 != 0:
+        nb_request = nb_request + 1
 
-    for i in range(nb_request):
+    for i in range(int(nb_request)):
         page_search_request = f'{search_request}&page={i + 1}&par_page=20'
         response = search_companies_request(page_search_request)
 
@@ -165,7 +165,8 @@ def search_companies(country, search_request, nb_company):
                 email = data.get('emails', [])[0] if data.get('emails') else ''
                 telephone = data.get('telephones', [])[0] if data.get('telephones') else ''
                 company_number = data.get('company_number', '')
+                creation_date = data.get('date_of_creation', '')
 
-                pappers_information.append(PappersInfo(nom_societe, address, nom_dirigeant, email, telephone, company_number))
+                pappers_information.append(PappersInfo(nom_societe, creation_date, address, nom_dirigeant, email, telephone, company_number))
 
     return pappers_information

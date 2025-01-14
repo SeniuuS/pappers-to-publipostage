@@ -1,10 +1,14 @@
 from . import bp
-from flask import render_template, request, send_file, jsonify
+from flask import render_template, request, send_file, jsonify, redirect, url_for
 from services.pappers_service import get_search_query, search_companies, get_number_of_companies, get_criterias
 from services.excel_service import create_excel_file
 from services.country_service import get_activities, get_legal_forms, get_legal_situations, get_postal_codes
 
 @bp.route('/', methods=['GET'])
+def home():
+    return redirect(url_for('main.index'))
+
+@bp.route('/index', methods=['GET'])
 def index():
     country = request.args.get('country', 'BE').upper()
     legal_situations = get_legal_situations(country)
@@ -25,9 +29,13 @@ def search():
 def download():
     country = request.form.get('country').upper()
     pappers_query = request.form.get('query')
-    nb_company = request.form.get('nb_company')
+    nb_export = int(request.form.get('nbExport'))
+    if nb_export == 0:
+        return redirect(url_for('main.index'))
+    if nb_export > 200:
+        nb_export = 200
 
-    pappers_information = search_companies(country, pappers_query, nb_company)
+    pappers_information = search_companies(country, pappers_query, nb_export)
     file_path = create_excel_file(get_criterias(pappers_query, country), pappers_information)
     return send_file(file_path, as_attachment=True)
 
