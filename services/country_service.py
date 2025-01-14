@@ -13,6 +13,9 @@ def get_legal_forms(country):
 def get_postal_codes(country):
     return countries[country].postal_codes
 
+def get_activities(country):
+    return countries[country].activities
+
 def find_postal_code(country, search_postal_code):
     postal_codes = get_postal_codes(country)
     for postal_code in postal_codes:
@@ -45,3 +48,16 @@ def find_legal_forms(country, search_legal_forms):
     else:
         found_legal_forms = found_legal_forms[:-1]
     return found_legal_forms
+
+def find_activities(country, search_activities):
+    found_activities = ""
+    activities = get_activities(country)
+    for search_activity in search_activities.split(','):
+        for activity in activities:
+            if activity["code"] == search_activity:
+                found_activities = f'{found_activities}{activity["code"]}-{activity["libelle"]},'
+    if found_activities == "":
+        return search_activities
+    else:
+        found_activities = found_activities[:-1]
+    return found_activities

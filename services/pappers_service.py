@@ -4,9 +4,10 @@ from services.country_service import *
 from models.pappers_info import PappersInfo
 
 criteria_dictionnary = {'status': 'Active', 'postal_code': 'Code Postal', 'local_legal_form_code': 'Forme juridique', 'legal_situation_code': 'Situation juridique',
-                        'turnover_min': 'Chiffre d\'affaire minimum', 'turnover_max': 'Chiffre d\'affaire maximum',
+                        'local_activity_code': 'Activités', 'turnover_min': 'Chiffre d\'affaire minimum', 'turnover_max': 'Chiffre d\'affaire maximum',
                         'net_income_min': 'Résultat minimum', 'net_income_max': 'Résultat maximum',
-                        'workforce_range_min': 'Effectif minimum', 'workforce_range_max': 'Effectif maximum'}
+                        'workforce_range_min': 'Effectif minimum', 'workforce_range_max': 'Effectif maximum',
+                        'country_code': 'Pays'}
 
 def get_search_query(request):
     country = request.form.get('country').upper()
@@ -14,6 +15,7 @@ def get_search_query(request):
     postal_code = request.form.get('postalCode', '').upper()
     legal_form = request.form.getlist('legalForm')
     legal_situation = request.form.getlist('legalSituation')
+    activities = request.form.getlist('activity')
     min_ca = request.form.get('minCA', 0)
     max_ca = request.form.get('maxCA', 0)
     min_res = request.form.get('minRES', 0)
@@ -30,6 +32,8 @@ def get_search_query(request):
         query = f'{query}&local_legal_form_code={",".join(legal_form)}'
     if legal_situation:
         query = f'{query}&legal_situation_code={",".join(legal_situation)}'
+    if activities:
+        query = f'{query}&local_activity_code={",".join(activities)}'
 
     if max_ca != '' and max_ca != 0:
         if min_ca == '':
@@ -105,6 +109,8 @@ def get_value(key, value, country):
         return find_legal_forms(country, value)
     if key == "legal_situation_code":
         return find_legal_situations(country, value)
+    if key == "local_activity_code":
+        return find_activities(country, value)
     else:
         return value
 
@@ -143,12 +149,15 @@ def search_companies(country, search_request, nb_company):
             for data in results.get('results', []):
                 nom_societe = data.get('name', '')
                 head_office = data.get('head_office', {})
-                country_found = head_office.get('country', '')
 
-                if country_found is None:
-                    country_found = Config.COUNTRIES[country]
+                address = ""
 
-                adresse = f"{head_office.get('address_line_1', '')} {head_office.get('postal_code', '')} {head_office.get('city', '')} {country_found}"
+                if head_office:
+                    country_found = head_office.get('country', '')
+                    if country_found is None:
+                        country_found = Config.COUNTRIES[country]
+                    address = f"{head_office.get('address_line_1', '')} {head_office.get('postal_code', '')} {head_office.get('city', '')} {country_found}"
+                        
                 nom_dirigeant = (
                     f"{data.get('officers', [{}])[0].get('last_name', '')} {data.get('officers', [{}])[0].get('first_name', '')}"
                     if data.get('officers') else ''
@@ -157,6 +166,6 @@ def search_companies(country, search_request, nb_company):
                 telephone = data.get('telephones', [])[0] if data.get('telephones') else ''
                 company_number = data.get('company_number', '')
 
-                pappers_information.append(PappersInfo(nom_societe, adresse, nom_dirigeant, email, telephone, company_number))
+                pappers_information.append(PappersInfo(nom_societe, address, nom_dirigeant, email, telephone, company_number))
 
     return pappers_information

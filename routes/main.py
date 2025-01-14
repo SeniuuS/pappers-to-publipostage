@@ -2,15 +2,16 @@ from . import bp
 from flask import render_template, request, send_file, jsonify
 from services.pappers_service import get_search_query, search_companies, get_number_of_companies, get_criterias
 from services.excel_service import create_excel_file
-from services.country_service import *
+from services.country_service import get_activities, get_legal_forms, get_legal_situations, get_postal_codes
 
 @bp.route('/', methods=['GET'])
 def index():
     country = request.args.get('country', 'BE').upper()
     legal_situations = get_legal_situations(country)
     legal_forms = get_legal_forms(country)
+    activities = get_activities(country)
 
-    return render_template('index.html', country=country, legal_situations=legal_situations, legal_forms=legal_forms)
+    return render_template('index.html', country=country, legal_situations=legal_situations, legal_forms=legal_forms, activities=activities)
 
 @bp.route('/search', methods=['POST'])
 def search():

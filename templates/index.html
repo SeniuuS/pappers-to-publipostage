@@ -53,12 +53,16 @@
                     {% endfor %}
                 </select>
             </div>
-<!--            <div class="form-floating mb-3">-->
-<!--                <input type="text" name="activity" id="activity" class="form-control" autocomplete="off"-->
-<!--                       placeholder="Activité">-->
-<!--                <label for="activity">Activité</label>-->
-<!--                <div id="autocomplete-list-activity" class="autocomplete-dropdown shadow-sm"></div>-->
-<!--            </div>-->
+            <div class="form-group mb-3">
+                <select id="activity" name="activity" class="selectpicker form-control" multiple
+                        data-live-search="true"
+                        data-selected-text-format="count"
+                        title="Activité">
+                    {% for o in activities %}
+                    <option value="{{ o.code }}">{{ o.code }} - {{ o.libelle }}</option>
+                    {% endfor %}
+                </select>
+            </div>
             <div class="input-group mb-3">
                 <div class="form-floating">
                     <input type="number" id="minCA" name="minCA" min="0" max="100000000000" class="form-control">
