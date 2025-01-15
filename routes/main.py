@@ -28,8 +28,9 @@ def search():
 
     try:
         pappers_query = get_search_query(request)
+        criterias = get_criterias(pappers_query, country)
         companies_found = get_number_of_companies(country, pappers_query)
-        return render_template('download.html', country=country, nb_company=companies_found['number'], companies=companies_found['companies'], query=pappers_query)
+        return render_template('download.html', country=country, nb_company=companies_found['number'], companies=companies_found['companies'], criterias=criterias, query=pappers_query)
     except Exception as e:
         return index_with_error(e)
 

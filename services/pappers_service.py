@@ -12,6 +12,8 @@ criteria_dictionnary = {'status': 'Active', 'postal_code': 'Code Postal', 'local
                         'date_of_creation_min': 'Date de création (min)', 'date_of_creation_max': 'Date de création (max)',
                         'country_code': 'Pays'}
 
+additional_query_parameter = '&targets=companies,officers,documents,publications&lang=fr'
+
 def get_search_query(request):
     country = request.form.get('country').upper()
     in_activity = request.form.get('inActivity', 'true')
@@ -78,7 +80,7 @@ def get_search_query(request):
             max_eff = 9
         query = f'{query}&workforce_range_min={get_workforce_number(min_eff)}&workforce_range_max={max_eff}'
 
-    query = f'{query}&targets=companies,officers,documents,publications&lang=fr'
+    query = f'{query}{additional_query_parameter}'
 
     return query
 
@@ -104,6 +106,7 @@ def get_workforce_number(eff):
         return 9
 
 def get_criterias(pappers_query, country):
+    pappers_query = pappers_query.replace(additional_query_parameter, '')
     criterias = []
     for criteria in pappers_query.split('&'):
         splitted = criteria.split('=')
