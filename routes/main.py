@@ -10,20 +10,29 @@ def home():
 
 @bp.route('/index', methods=['GET'])
 def index():
+    return index_with_error(None)
+
+def index_with_error(error: Exception):
     country = request.args.get('country', 'BE').upper()
     legal_situations = get_legal_situations(country)
     legal_forms = get_legal_forms(country)
     activities = get_activities(country)
 
+    if error:
+        return render_template('index.html', country=country, legal_situations=legal_situations, legal_forms=legal_forms, activities=activities, error=str(error))
     return render_template('index.html', country=country, legal_situations=legal_situations, legal_forms=legal_forms, activities=activities)
 
 @bp.route('/search', methods=['POST'])
 def search():
     country = request.form.get('country').upper()
 
-    pappers_query = get_search_query(request)
-    nb_company = get_number_of_companies(pappers_query)
-    return render_template('download.html', country=country, nb_company=nb_company, query=pappers_query)
+    try:
+        pappers_query = get_search_query(request)
+        companies_found = get_number_of_companies(country, pappers_query)
+        return render_template('download.html', country=country, nb_company=companies_found['number'], companies=companies_found['companies'], query=pappers_query)
+    except Exception as e:
+        return index_with_error(e)
+
 
 @bp.route('/download', methods=['POST'])
 def download():
@@ -40,7 +49,7 @@ def download():
     return send_file(file_path, as_attachment=True)
 
 @bp.route("/autocompletePostalCode", methods=["GET"])
-def autocompletePostalCode():
+def auto_complete_postal_code():
     country = request.args.get('countryCode').upper()
     postal_codes = get_postal_codes(country)
     query = request.args.get("q", "").lower()

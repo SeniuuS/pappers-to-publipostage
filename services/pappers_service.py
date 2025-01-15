@@ -1,5 +1,7 @@
+import logging
 import requests
 from config import Config
+from helpers.date_helper import verify_date_range
 from services.country_service import *
 from models.pappers_info import PappersInfo
 
@@ -7,6 +9,7 @@ criteria_dictionnary = {'status': 'Active', 'postal_code': 'Code Postal', 'local
                         'local_activity_code': 'Activités', 'turnover_min': 'Chiffre d\'affaire minimum', 'turnover_max': 'Chiffre d\'affaire maximum',
                         'net_income_min': 'Résultat minimum', 'net_income_max': 'Résultat maximum',
                         'workforce_range_min': 'Effectif minimum', 'workforce_range_max': 'Effectif maximum',
+                        'date_of_creation_min': 'Date de création (min)', 'date_of_creation_max': 'Date de création (max)',
                         'country_code': 'Pays'}
 
 def get_search_query(request):
@@ -22,6 +25,8 @@ def get_search_query(request):
     max_res = request.form.get('maxRES', 0)
     min_eff = request.form.get('minEff', 0)
     max_eff = request.form.get('maxEff', 0)
+    creation_date_start_str = request.form.get('creationDateStart', '')
+    creation_date_end_str = request.form.get('creationDateEnd', '')
 
     query = f'country_code={country}'
     if in_activity == 'on':
@@ -34,6 +39,17 @@ def get_search_query(request):
         query = f'{query}&legal_situation_code={",".join(legal_situation)}'
     if activities:
         query = f'{query}&local_activity_code={",".join(activities)}'
+
+    if creation_date_end_str != '':
+        if creation_date_start_str == '':
+            creation_date_start_str = creation_date_end_str
+        verify_date_range(creation_date_start_str, creation_date_end_str)
+        query = f'{query}&date_of_creation_min={creation_date_start_str}&date_of_creation_max={creation_date_end_str}'
+    elif creation_date_start_str != '':
+        if creation_date_end_str == '':
+            creation_date_end_str = creation_date_start_str
+        verify_date_range(creation_date_start_str, creation_date_end_str)
+        query = f'{query}&date_of_creation_min={creation_date_start_str}&date_of_creation_max={creation_date_end_str}'
 
     if max_ca != '' and max_ca != 0:
         if min_ca == '':
@@ -117,20 +133,32 @@ def get_value(key, value, country):
 def search_companies_request(search_request):
     search_request = f'{search_request}&api_token={Config.PAPPERS_API_KEY}'
 
-    response = requests.get(
-        f'{Config.PAPPERS_API_SEARCH_URL}?{search_request}'
-    )
+    url = f'{Config.PAPPERS_API_SEARCH_URL}?{search_request}'
+
+    logging.info(f"Requesting {url}")
+
+    response = requests.get(url)
 
     if response.status_code == 200:
+        logging.info(f"Request {url} successful : 200")
         return response
+    logging.warning(f"Error requesting {url} : {response.status_code}")
     return None
 
-def get_number_of_companies(search_request):
+def get_number_of_companies(country, search_request):
     response = search_companies_request(search_request)
+    pappers_information = []
+    number_of_companies = 0
     if response:
         results = response.json()
-        return results.get("total")
-    return 0
+        number_of_companies = results.get("total")
+        i = 0
+        for data in results.get('results', []):
+            if i == 5:
+                break
+            pappers_information.append(PappersInfo(data, country))
+            i = i + 1
+    return {'number': number_of_companies, 'companies': pappers_information}
 
 def search_companies(country, search_request, nb_company):
     nb_company_per_page = 20
@@ -147,26 +175,6 @@ def search_companies(country, search_request, nb_company):
         if response:
             results = response.json()
             for data in results.get('results', []):
-                nom_societe = data.get('name', '')
-                head_office = data.get('head_office', {})
-
-                address = ""
-
-                if head_office:
-                    country_found = head_office.get('country', '')
-                    if country_found is None:
-                        country_found = Config.COUNTRIES[country]
-                    address = f"{head_office.get('address_line_1', '')} {head_office.get('postal_code', '')} {head_office.get('city', '')} {country_found}"
-                        
-                nom_dirigeant = (
-                    f"{data.get('officers', [{}])[0].get('last_name', '')} {data.get('officers', [{}])[0].get('first_name', '')}"
-                    if data.get('officers') else ''
-                )
-                email = data.get('emails', [])[0] if data.get('emails') else ''
-                telephone = data.get('telephones', [])[0] if data.get('telephones') else ''
-                company_number = data.get('company_number', '')
-                creation_date = data.get('date_of_creation', '')
-
-                pappers_information.append(PappersInfo(nom_societe, creation_date, address, nom_dirigeant, email, telephone, company_number))
+                pappers_information.append(PappersInfo(data, country))
 
     return pappers_information

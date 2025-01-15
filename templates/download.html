@@ -22,11 +22,20 @@
             <input type="hidden" name="country" value="{{ country }}">
             <input type="hidden" name="query" value="{{ query }}">
             <p>Nombre d'entreprises trouvées : {{ nb_company }}</p>
+            {% if nb_company > 0 %}
+            <div class="container">
+                {% for company in companies %}
+                <p>{{ company.company_name }}</p>
+                {% endfor %}
+            </div>
             <div class="form-floating mb-4">
                 <input type="number" name="nbExport" id="nbExport" class="form-control" min="0" max="200" value="200" step="20">
                 <label for="nbExport">Nombre d'export (multiple de 20)</label>
             </div>
             <button type="submit" class="btn btn-primary">Download</button>
+            {% else %}
+            <a href="/index">Retour</a>
+            {% endif %}
         </form>
     </main>
 
