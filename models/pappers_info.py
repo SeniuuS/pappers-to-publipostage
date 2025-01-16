@@ -20,6 +20,7 @@ class PappersInfo:
 
         company_number = data.get('company_number', '')
         creation_date = data.get('date_of_creation', '')
+        status = data.get('status', '')
 
         self.company_name = nom_societe
         self.creation_date = creation_date
@@ -30,7 +31,10 @@ class PappersInfo:
         self.activity = ''
         self.turnover = ''
         self.income = ''
+        self.share_capital = f"{data.get('share_capital', '')} {data.get('share_capital_currency', '')}"
         self.legal_situation = ''
+        self.legal_form = data.get('local_legal_form_name', '')
+        self.active = 'En activité' if status == 'active' else 'Inactif'
         self.company_number = company_number
 
     def add_officer_info(self, data):
@@ -50,8 +54,8 @@ class PappersInfo:
         financials = data.get('financials', [])
         accounts = [account for account in financials if account['type'] == 'accounts']
         if accounts:
-            self.turnover = accounts[0].get('ratios').get('turnover')
-            self.income = accounts[0].get('ratios').get('net_income')
+            self.turnover = f"{accounts[0].get('ratios').get('turnover')} {accounts[0].get('currency')}"
+            self.income = f"{accounts[0].get('ratios').get('net_income')} {accounts[0].get('currency')}"
 
         activities = data.get('activities', [])
         for activity in activities:

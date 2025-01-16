@@ -15,9 +15,9 @@ def create_excel_file(criterias, pappers_information):
 
     headers = [
         'Nom société', 'Adresse', 'Nom dirigeant',
-        'Email', 'Téléphone', 'Date de création',
+        'Email', 'Téléphone', 'Date de création', 'Actif',
         'Numero d\'entreprise', 'Activités', 'Situation juridique',
-        'Chiffre d\'affaire', 'Résultat'
+        'Forme juridique', 'Chiffre d\'affaire', 'Résultat', 'Capital'
     ]
     headers2 = [
         'Critère', 'Valeur'
@@ -29,9 +29,9 @@ def create_excel_file(criterias, pappers_information):
         pappers_info = pappers_information
         ws.append([
             pappers_info.company_name, pappers_info.address, pappers_info.owner_name,
-            pappers_info.email, pappers_info.phone, pappers_info.creation_date,
-            pappers_info.company_number, pappers_info.activity, pappers_info.legal_situation,
-            pappers_info.turnover, pappers_info.income
+            pappers_info.email, pappers_info.phone, pappers_info.creation_date, pappers_info.active,
+            pappers_info.company_number, pappers_info.activity, pappers_info.legal_situation, pappers_info.legal_form,
+            pappers_info.turnover, pappers_info.income, pappers_info.share_capital
         ])
 
     for criteria in criterias:
