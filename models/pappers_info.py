@@ -50,12 +50,14 @@ class PappersInfo:
         financials = data.get('financials', [])
         accounts = [account for account in financials if account['type'] == 'accounts']
         if accounts:
-            self.turnover = f'{accounts[0].get('ratios').get('turnover')} €'
-            self.income = f'{accounts[0].get('ratios').get('net_income')} €'
+            self.turnover = accounts[0].get('ratios').get('turnover')
+            self.income = accounts[0].get('ratios').get('net_income')
 
         activities = data.get('activities', [])
         for activity in activities:
-            self.activity = f'{self.activity}{activity["code"]}-{activity["name"]},'
+            formatted_activity = f"{activity['code']}-{activity['name']}"
+            if not formatted_activity in self.activity:
+                self.activity = f"{self.activity}{formatted_activity},"
         if self.activity != '':
             self.activity = self.activity[:-1]
 

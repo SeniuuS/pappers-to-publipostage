@@ -16,7 +16,7 @@ def create_excel_file(criterias, pappers_information):
     headers = [
         'Nom société', 'Adresse', 'Nom dirigeant',
         'Email', 'Téléphone', 'Date de création',
-        'Numero d\'entreprise', 'Activité', 'Situation juridique',
+        'Numero d\'entreprise', 'Activités', 'Situation juridique',
         'Chiffre d\'affaire', 'Résultat'
     ]
     headers2 = [
