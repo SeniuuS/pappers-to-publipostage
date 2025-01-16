@@ -3,7 +3,9 @@ import os
 
 import pandas as pd
 
+from config import Config
 from helpers.json_helper import read_file_json
+from helpers.consts import *
 
 CITY_COLUMN = 'Municipality name (French)'
 POSTAL_CODE_COLUMN = 'Postal Code'
@@ -14,6 +16,28 @@ class Belgium:
     legal_form_file = os.path.join('sources', 'forme-juridique-belgium.json')
     legal_situation_file = os.path.join('sources', 'situation-juridique-belgium.json')
     activities_file = os.path.join('sources', 'TU_COM_NACEBEL_2008.xlsx')
+
+    criteria_dictionnary = {'status': 'Active', 'postal_code': 'Code Postal',
+                            'local_legal_form_code': 'Forme juridique', 'legal_situation_code': 'Situation juridique',
+                            'local_activity_code': 'Activités', 'turnover_min': 'Chiffre d\'affaire minimum',
+                            'turnover_max': 'Chiffre d\'affaire maximum',
+                            'net_income_min': 'Résultat minimum', 'net_income_max': 'Résultat maximum',
+                            'workforce_range_min': 'Effectif minimum', 'workforce_range_max': 'Effectif maximum',
+                            'date_of_creation_min': 'Date de création (min)',
+                            'date_of_creation_max': 'Date de création (max)',
+                            'country_code': 'Pays'}
+
+    query_parameter_dictionary = {IN_ACTIVITY: 'status', POSTAL_CODE: 'postal_code', LEGAL_FORM: 'local_legal_form_code',
+                              LEGAL_SITUATION: 'legal_situation_code', ACTIVITY: 'local_activity_code',
+                              MIN_CA: 'turnover_min', MAX_CA: 'turnover_max', MIN_RES: 'net_income_min',
+                              MAX_RES: 'net_income_max', MIN_EFF: 'workforce_range_min', MAX_EFF: 'workforce_range_max',
+                              CREATION_DATE_START: 'date_of_creation_min', CREATION_DATE_END: 'date_of_creation_max',
+                              COUNTRY: 'country_code', COMPANY_NUMBER: 'company_number'}
+
+    pappers_api_search_url = Config.PAPPERS_API_SEARCH_URL
+    pappers_api_company_url = Config.PAPPERS_API_COMPANY_URL
+    pappers_api_search_key = Config.PAPPERS_API_KEY
+    pappers_api_company_key = Config.PAPPERS_API_COMPANY_PERSO_KEY
 
     postal_codes = []
     legal_forms = []

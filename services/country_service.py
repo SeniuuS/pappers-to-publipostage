@@ -1,8 +1,10 @@
 from models.belgium import Belgium
+from models.france import France
 
 belgium = Belgium()
+france = France()
 
-countries = {'FR': None, 'BE': belgium, 'CH': None}
+countries = {'FR': france, 'BE': belgium, 'CH': None}
 
 def get_legal_situations(country):
     return countries[country].legal_situations
@@ -15,6 +17,24 @@ def get_postal_codes(country):
 
 def get_activities(country):
     return countries[country].activities
+
+def get_criteria_dictionary(country):
+    return countries[country].criteria_dictionnary
+
+def get_query_parameter_dictionary(country):
+    return countries[country].query_parameter_dictionary
+
+def get_pappers_api_search_url(country):
+    return countries[country].pappers_api_search_url
+
+def get_pappers_api_company_url(country):
+    return countries[country].pappers_api_company_url
+
+def get_pappers_api_search_key(country):
+    return countries[country].pappers_api_search_key
+
+def get_pappers_api_company_key(country):
+    return countries[country].pappers_api_company_key
 
 def find_postal_code(country, search_postal_code):
     postal_codes = get_postal_codes(country)

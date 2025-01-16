@@ -6,7 +6,8 @@ from services.country_service import get_activities, get_legal_forms, get_legal_
 
 @bp.route('/', methods=['GET'])
 def home():
-    return redirect(url_for('main.index'))
+    country = request.args.get('country', 'BE').upper()
+    return redirect(url_for('main.index', country=country))
 
 @bp.route('/index', methods=['GET'])
 def index():
