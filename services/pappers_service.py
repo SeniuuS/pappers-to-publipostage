@@ -2,6 +2,7 @@ import logging
 import requests
 from config import Config
 from helpers.date_helper import verify_date_range
+from helpers.request_helper import request_url
 from services.country_service import *
 from models.pappers_info import PappersInfo
 
@@ -135,18 +136,8 @@ def get_value(key, value, country):
 
 def search_companies_request(search_request):
     search_request = f'{search_request}&api_token={Config.PAPPERS_API_KEY}'
-
     url = f'{Config.PAPPERS_API_SEARCH_URL}?{search_request}'
-
-    logging.info(f"Requesting {url}")
-
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        logging.info(f"Request {url} successful : 200")
-        return response
-    logging.warning(f"Error requesting {url} : {response.status_code}")
-    return None
+    return request_url(url)
 
 def get_number_of_companies(country, search_request):
     response = search_companies_request(search_request)
@@ -163,21 +154,43 @@ def get_number_of_companies(country, search_request):
             i = i + 1
     return {'number': number_of_companies, 'companies': pappers_information}
 
-def search_companies(country, search_request, nb_company):
+
+def get_officer_data(company_number, country):
+    search_request = f'api_token={Config.PAPPERS_API_COMPANY_PERSO_KEY}&country_code={country}&company_number={company_number}&fields=officers,ubos,financials,documents,certificates,publications,establishments,contacts'
+    url = f'{Config.PAPPERS_API_COMPANY_URL}?{search_request}'
+    return request_url(url)
+
+def search_companies(country: str, search_request: str, nb_company: int, add_officer_info: bool):
     nb_company_per_page = 20
     pappers_information = []
 
+    current_nb = 1
     nb_request = int(nb_company) / nb_company_per_page
     if nb_request != 1 and nb_request % 2 != 0:
         nb_request = nb_request + 1
 
     for i in range(int(nb_request)):
+        if current_nb > nb_company:
+            break
+
         page_search_request = f'{search_request}&page={i + 1}&par_page=20'
         response = search_companies_request(page_search_request)
 
         if response:
             results = response.json()
             for data in results.get('results', []):
-                pappers_information.append(PappersInfo(data, country))
+                if current_nb > nb_company:
+                    break
+
+                pappers_info = PappersInfo(data, country)
+
+                if add_officer_info:
+                    officer_data_response = get_officer_data(data.get('company_number', ''), country)
+                    if officer_data_response:
+                        officer_data = officer_data_response.json()
+                        pappers_info.add_officer_info(officer_data)
+
+                pappers_information.append(pappers_info)
+                current_nb = current_nb + 1
 
     return pappers_information

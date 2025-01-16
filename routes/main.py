@@ -40,12 +40,13 @@ def download():
     country = request.form.get('country').upper()
     pappers_query = request.form.get('query')
     nb_export = int(request.form.get('nbExport'))
+    add_officer_info = request.form.get('detailedCheckBox')
     if nb_export == 0:
         return redirect(url_for('main.index'))
     if nb_export > 200:
         nb_export = 200
 
-    pappers_information = search_companies(country, pappers_query, nb_export)
+    pappers_information = search_companies(country, pappers_query, nb_export, add_officer_info == 'detailed')
     file_path = create_excel_file(get_criterias(pappers_query, country), pappers_information)
     return send_file(file_path, as_attachment=True)
 

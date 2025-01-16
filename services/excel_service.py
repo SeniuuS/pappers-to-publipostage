@@ -28,7 +28,7 @@ def create_excel_file(criterias, pappers_information):
         pappers_info = pappers_information
         ws.append([
             pappers_info.company_name, pappers_info.address, pappers_info.owner_name,
-            pappers_info.email, pappers_info.telephone, pappers_info.creation_date,
+            pappers_info.email, pappers_info.phone, pappers_info.creation_date,
             pappers_info.company_number
         ])
 
