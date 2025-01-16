@@ -1,11 +1,8 @@
-import logging
-import requests
 from config import Config
 from helpers.date_helper import verify_date_range
 from helpers.request_helper import request_url
 from helpers.consts import *
 from services.country_service import *
-from models.pappers_info import PappersInfo
 
 additional_query_parameter = '&targets=companies,officers,documents,publications&lang=fr'
 
@@ -139,12 +136,12 @@ def get_number_of_companies(country, search_request):
     number_of_companies = 0
     if response:
         results = response.json()
-        number_of_companies = results.get("total")
+        number_of_companies = results.get(get_response_dictionary(country)[TOTAL])
         i = 0
-        for data in results.get('results', []):
+        for data in results.get(get_response_dictionary(country)[RESULTS], []):
             if i == 5:
                 break
-            pappers_information.append(PappersInfo(data, country))
+            pappers_information.append(create_pappers_info(data, country))
             i = i + 1
     return {'number': number_of_companies, 'companies': pappers_information}
 
@@ -172,14 +169,14 @@ def search_companies(country: str, search_request: str, nb_company: int, add_off
 
         if response:
             results = response.json()
-            for data in results.get('results', []):
+            for data in results.get(get_response_dictionary(country)[RESULTS], []):
                 if current_nb > nb_company:
                     break
 
-                pappers_info = PappersInfo(data, country)
+                pappers_info = create_pappers_info(data, country)
 
                 if add_officer_info:
-                    officer_data_response = get_officer_data(data.get('company_number', ''), country)
+                    officer_data_response = get_officer_data(data.get(get_response_dictionary(country)[COMPANY_NUMBER], ''), country)
                     if officer_data_response:
                         officer_data = officer_data_response.json()
                         pappers_info.add_officer_info(officer_data)

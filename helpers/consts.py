@@ -13,3 +13,6 @@ CREATION_DATE_START = 'creationDateStart'
 CREATION_DATE_END = 'creationDateEnd'
 COUNTRY = 'country'
 COMPANY_NUMBER = 'companyNumber'
+
+RESULTS = 'results'
+TOTAL = 'total'

@@ -30,6 +30,8 @@ class France:
                               CREATION_DATE_START: 'date_creation_min', CREATION_DATE_END: 'date_creation_max',
                               COUNTRY: 'country_code', COMPANY_NUMBER: 'siren'}
 
+    response_dictionary = {RESULTS: 'resultats', COMPANY_NUMBER: 'siren', TOTAL: 'total'}
+
     pappers_api_search_url = Config.PAPPERS_API_SEARCH_URL_FR
     pappers_api_company_url = Config.PAPPERS_API_COMPANY_URL_FR
     pappers_api_search_key = Config.PAPPERS_API_KEY_FR

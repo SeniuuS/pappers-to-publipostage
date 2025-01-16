@@ -1,10 +1,17 @@
 from models.belgium import Belgium
 from models.france import France
+from models.pappers_info import PappersInfo
+from models.pappers_info_fr import PappersInfoFR
 
 belgium = Belgium()
 france = France()
 
 countries = {'FR': france, 'BE': belgium, 'CH': None}
+
+def create_pappers_info(data, country):
+    if country == 'FR':
+        return PappersInfoFR(data, country)
+    return PappersInfo(data, country)
 
 def get_legal_situations(country):
     return countries[country].legal_situations
@@ -23,6 +30,9 @@ def get_criteria_dictionary(country):
 
 def get_query_parameter_dictionary(country):
     return countries[country].query_parameter_dictionary
+
+def get_response_dictionary(country):
+    return countries[country].response_dictionary
 
 def get_pappers_api_search_url(country):
     return countries[country].pappers_api_search_url

@@ -34,6 +34,8 @@ class Belgium:
                               CREATION_DATE_START: 'date_of_creation_min', CREATION_DATE_END: 'date_of_creation_max',
                               COUNTRY: 'country_code', COMPANY_NUMBER: 'company_number'}
 
+    response_dictionary = {RESULTS: 'results', COMPANY_NUMBER: 'company_number', TOTAL: 'total'}
+
     pappers_api_search_url = Config.PAPPERS_API_SEARCH_URL
     pappers_api_company_url = Config.PAPPERS_API_COMPANY_URL
     pappers_api_search_key = Config.PAPPERS_API_KEY
