@@ -27,6 +27,10 @@ class PappersInfo:
         self.owner_name = nom_dirigeant
         self.email = ''
         self.phone = ''
+        self.activity = ''
+        self.turnover = ''
+        self.income = ''
+        self.legal_situation = ''
         self.company_number = company_number
 
     def add_officer_info(self, data):
@@ -42,6 +46,20 @@ class PappersInfo:
         email = emails[0]['value'] if emails else ''
         phones = [contact for contact in contacts if contact['type'] == 'phone']
         phone = phones[0]['value'] if phones else ''
+
+        financials = data.get('financials', [])
+        accounts = [account for account in financials if account['type'] == 'accounts']
+        if accounts:
+            self.turnover = f'{accounts[0].get('ratios').get('turnover')} €'
+            self.income = f'{accounts[0].get('ratios').get('net_income')} €'
+
+        activities = data.get('activities', [])
+        for activity in activities:
+            self.activity = f'{self.activity}{activity["code"]}-{activity["name"]},'
+        if self.activity != '':
+            self.activity = self.activity[:-1]
+
+        self.legal_situation = data.get('legal_situation', '')
 
         self.owner_name = nom_dirigeant
         self.email = email
