@@ -1,3 +1,4 @@
+from services.authentication_service import can_do_detailed_export
 from . import bp
 from flask import render_template, request, send_file, jsonify, redirect, url_for
 from services.pappers_service import get_search_query, search_companies, get_number_of_companies, get_criterias
@@ -31,7 +32,10 @@ def search():
         pappers_query = get_search_query(request)
         criterias = get_criterias(pappers_query, country)
         companies_found = get_number_of_companies(country, pappers_query)
-        return render_template('download.html', country=country, nb_company=companies_found['number'], companies=companies_found['companies'], criterias=criterias, query=pappers_query)
+        nb_export_max = 200
+        if nb_export_max > companies_found['number']:
+            nb_export_max = companies_found['number']
+        return render_template('download.html', country=country, nb_export_max=nb_export_max, nb_company=companies_found['number'], companies=companies_found['companies'], criterias=criterias, query=pappers_query)
     except Exception as e:
         return index_with_error(e)
 
@@ -42,12 +46,13 @@ def download():
     pappers_query = request.form.get('query')
     nb_export = int(request.form.get('nbExport'))
     add_officer_info = request.form.get('detailedCheckBox')
+    detailed_export_key = request.form.get('detailedExportKey')
     if nb_export == 0:
         return redirect(url_for('main.index'))
     if nb_export > 200:
         nb_export = 200
 
-    pappers_information = search_companies(country, pappers_query, nb_export, add_officer_info == 'detailed')
+    pappers_information = search_companies(country, pappers_query, nb_export, can_do_detailed_export(add_officer_info, detailed_export_key))
     file_path = create_excel_file(get_criterias(pappers_query, country), pappers_information)
     return send_file(file_path, as_attachment=True)
 
