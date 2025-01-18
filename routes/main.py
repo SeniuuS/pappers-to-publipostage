@@ -1,9 +1,10 @@
-from services.authentication_service import can_do_detailed_export
 from . import bp
 from flask import render_template, request, send_file, jsonify, redirect, url_for
+
 from services.pappers_service import get_search_query, search_companies, get_number_of_companies, get_criterias
 from services.excel_service import create_excel_file
 from services.country_service import get_activities, get_legal_forms, get_legal_situations, get_postal_codes
+from services.authentication_service import can_do_detailed_export
 
 @bp.route('/', methods=['GET'])
 def home():
