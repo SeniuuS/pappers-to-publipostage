@@ -19,6 +19,8 @@ def get_search_query(request):
     max_res = request.form.get(MAX_RES, 0)
     min_eff = request.form.get(MIN_EFF, 0)
     max_eff = request.form.get(MAX_EFF, 0)
+    min_cap = request.form.get(MIN_CAP, 0)
+    max_cap = request.form.get(MAX_CAP, 0)
     creation_date_start_str = request.form.get(CREATION_DATE_START, '')
     creation_date_end_str = request.form.get(CREATION_DATE_END, '')
 
@@ -62,6 +64,15 @@ def get_search_query(request):
         if max_res == '' or max_res == 0:
             max_res = 100000000000
         query = f'{query}&{get_query_parameter_dictionary(country)[MIN_RES]}={min_res}&{get_query_parameter_dictionary(country)[MAX_RES]}={max_res}'
+
+    if max_cap != '' and max_cap != 0:
+        if min_cap == '':
+            min_cap = 0
+        query = f'{query}&{get_query_parameter_dictionary(country)[MIN_CAP]}={min_cap}&{get_query_parameter_dictionary(country)[MAX_CAP]}={max_cap}'
+    elif min_cap != '' and min_cap != 0:
+        if max_cap == '' or max_cap == 0:
+            max_cap = 100000000000
+        query = f'{query}&{get_query_parameter_dictionary(country)[MIN_CAP]}={min_cap}&{get_query_parameter_dictionary(country)[MAX_CAP]}={max_cap}'
 
     if max_eff != '' and max_eff != 0:
         if min_eff == '':

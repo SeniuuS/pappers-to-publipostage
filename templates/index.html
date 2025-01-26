@@ -87,6 +87,18 @@
             </div>
             <div class="input-group mb-3">
                 <div class="form-floating">
+                    <input type="number" id="minCAP" name="minCAP" min="0" max="100000000000"  class="form-control">
+                    <label for="minCAP">Capital minimum</label>
+                </div>
+                <span class="input-group-text">€</span>
+                <div class="form-floating">
+                    <input type="number" id="maxCAP" name="maxCAP" min="0" max="100000000000"  class="form-control">
+                    <label for="maxCAP">Capital maximum</label>
+                </div>
+                <span class="input-group-text">€</span>
+            </div>
+            <div class="input-group mb-3">
+                <div class="form-floating">
                     <input type="number" id="minEff" name="minEff" min="0" max="500000" class="form-control">
                     <label for="minEff">Effectif minimum</label>
                 </div>
@@ -117,7 +129,7 @@
             <span class="mb-3 mb-md-0 text-body-secondary">© 2025 Stéphane SCHENKEL</span>
         </div>
         <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
-<!--            <li class="ms-3"><a class="text-body-secondary" href="/index?country=FR">FR</a></li>-->
+            <li class="ms-3"><a class="text-body-secondary" href="/index?country=FR">FR</a></li>
 <!--            <li class="ms-3"><a class="text-body-secondary" href="/?country=CH">CH</a></li>-->
             <li class="ms-3"><a class="text-body-secondary" href="/index?country=BE">BE</a></li>
         </ul>

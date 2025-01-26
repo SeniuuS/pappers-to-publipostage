@@ -25,9 +25,11 @@ class PappersInfoFR:
         self.phone = ''
         self.owner_name = ''
 
+        self.turnover = data.get('chiffre_affaires', '')
+        self.income = data.get('resultat', '')
+        self.share_capital = data.get('capital', '')
+
         # Pas dispo en FR
-        self.turnover = ''
-        self.income = ''
         self.legal_situation = ''
 
     def add_officer_info(self, data):

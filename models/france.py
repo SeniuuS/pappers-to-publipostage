@@ -1,6 +1,8 @@
 import csv
 import os
 
+import pandas as pd
+
 from config import Config
 from helpers.consts import *
 
@@ -10,15 +12,15 @@ COMMUNE_CODE_COLUMN = 'Code_commune_INSEE'
 
 class France:
     postal_codes_file = os.path.join('sources', 'postal-codes-france.csv')
-    legal_form_file = os.path.join('sources', '')
-    legal_situation_file = os.path.join('sources', '')
-    activities_file = os.path.join('sources', '')
+    legal_form_file = os.path.join('sources', 'cj_septembre_2022.xls')
+    activities_file = os.path.join('sources', 'int_courts_naf_rev_2.xls')
 
     criteria_dictionnary = {'status': 'Active', 'code_postal': 'Code Postal',
                             'categorie_juridique': 'Forme juridique',
                             'code_naf_elargi': 'Activités', 'chiffre_affaires_min': 'Chiffre d\'affaire minimum',
                             'chiffre_affaires_max': 'Chiffre d\'affaire maximum',
                             'resultat_min': 'Résultat minimum', 'resultat_max': 'Résultat maximum',
+                            'capital_min': 'Capital minimum', 'capital_max': 'Capital maximum',
                             'tranche_effectif_min': 'Effectif minimum', 'tranche_effectif_max': 'Effectif maximum',
                             'date_creation_min': 'Date de création (min)',
                             'date_creation_max': 'Date de création (max)'}
@@ -27,6 +29,7 @@ class France:
                               LEGAL_SITUATION: 'legal_situation_code', ACTIVITY: 'code_naf_elargi',
                               MIN_CA: 'chiffre_affaires_min', MAX_CA: 'chiffre_affaires_max', MIN_RES: 'resultat_min',
                               MAX_RES: 'resultat_max', MIN_EFF: 'tranche_effectif_min', MAX_EFF: 'tranche_effectif_max',
+                              MIN_CAP: 'capital_min', MAX_CAP: 'capital_max',
                               CREATION_DATE_START: 'date_creation_min', CREATION_DATE_END: 'date_creation_max',
                               COUNTRY: 'country_code', COMPANY_NUMBER: 'siren'}
 
@@ -44,9 +47,8 @@ class France:
 
     def __init__(self):
         self.init_postal_codes()
-        # self.init_legal_form()
-        # self.init_legal_situation()
-        # self.init_activities()
+        self.init_legal_form()
+        self.init_activities()
 
     def init_postal_codes(self):
         processed_postal_codes = []
@@ -56,11 +58,13 @@ class France:
                 if ligne[CITY_COLUMN].strip() and not ligne[POSTAL_CODE_COLUMN] in processed_postal_codes:
                     self.postal_codes.append({"code_postal": ligne[POSTAL_CODE_COLUMN], "commune": ligne[CITY_COLUMN]})
                     processed_postal_codes.append(ligne[POSTAL_CODE_COLUMN])
-    #
-    # def init_activities(self):
-    #
-    # def init_legal_form(self):
-    #     self.legal_forms =
-    #
-    # def init_legal_situation(self):
-    #     self.legal_situations =
+
+    def init_activities(self):
+        df = pd.read_excel(self.activities_file)
+        self.activities = [{'code': str(row['Code']), 'libelle': row['Libellé NAF, FINAL']} for _, row in df.iterrows() if str(row['Code']).endswith('Z')]
+        print(self.activities)
+
+    def init_legal_form(self):
+        df = pd.read_excel(self.legal_form_file)
+        self.legal_forms = [{'c': str(row['Code']), 'n': row['Libellé']} for _, row in df.iterrows()]
+        print(self.legal_forms)

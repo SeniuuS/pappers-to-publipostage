@@ -22,6 +22,7 @@ class Belgium:
                             'local_activity_code': 'Activités', 'turnover_min': 'Chiffre d\'affaire minimum',
                             'turnover_max': 'Chiffre d\'affaire maximum',
                             'net_income_min': 'Résultat minimum', 'net_income_max': 'Résultat maximum',
+                            'capital_min': 'Capital minimum', 'capital_max': 'Capital maximum',
                             'workforce_range_min': 'Effectif minimum', 'workforce_range_max': 'Effectif maximum',
                             'date_of_creation_min': 'Date de création (min)',
                             'date_of_creation_max': 'Date de création (max)',
@@ -31,6 +32,7 @@ class Belgium:
                               LEGAL_SITUATION: 'legal_situation_code', ACTIVITY: 'local_activity_code',
                               MIN_CA: 'turnover_min', MAX_CA: 'turnover_max', MIN_RES: 'net_income_min',
                               MAX_RES: 'net_income_max', MIN_EFF: 'workforce_range_min', MAX_EFF: 'workforce_range_max',
+                              MIN_CAP: 'capital_min', MAX_CAP: 'capital_max',
                               CREATION_DATE_START: 'date_of_creation_min', CREATION_DATE_END: 'date_of_creation_max',
                               COUNTRY: 'country_code', COMPANY_NUMBER: 'company_number'}
 
