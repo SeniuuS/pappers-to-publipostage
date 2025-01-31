@@ -1,5 +1,8 @@
+import json
+
+from models.pappers_form import PapperForm
 from . import bp
-from flask import render_template, request, send_file, jsonify, redirect, url_for
+from flask import render_template, request, send_file, jsonify, redirect, url_for, session
 
 from services.pappers_service import get_search_query, search_companies, get_number_of_companies, get_criterias
 from services.excel_service import create_excel_file
@@ -15,21 +18,51 @@ def home():
 def index():
     return index_with_error(None)
 
+@bp.route('/reset', methods=['POST'])
+def reset():
+    country = request.form.get('country').upper()
+    initialize_form_session(country, None)
+    return redirect(url_for('main.index', country=country))
+
+def initialize_form_session(country, req):
+    session['current_form'] = PapperForm(country, req).to_json()
+
+def get_form_session():
+    json_form = json.loads(session['current_form'])
+    current_form = PapperForm(None, None)
+    current_form.load_json(json_form)
+    return current_form
+
+def set_form_session(country, req):
+    if req is not None:
+        initialize_form_session(country, req)
+    if 'current_form' not in session:
+        initialize_form_session(country, req)
+    current_form = get_form_session()
+    if current_form.country != country:
+        initialize_form_session(country, req)
+    current_form = get_form_session()
+    return current_form
+
 def index_with_error(error: Exception):
     country = request.args.get('country', 'BE').upper()
+
+    current_form = set_form_session(country, None)
+
     legal_situations = get_legal_situations(country)
     legal_forms = get_legal_forms(country)
     activities = get_activities(country)
 
     if error:
-        return render_template('index.html', country=country, legal_situations=legal_situations, legal_forms=legal_forms, activities=activities, error=str(error))
-    return render_template('index.html', country=country, legal_situations=legal_situations, legal_forms=legal_forms, activities=activities)
+        return render_template('index.jinja2', country=country, legal_situations=legal_situations, legal_forms=legal_forms, activities=activities, form=current_form, error=str(error))
+    return render_template('index.jinja2', country=country, legal_situations=legal_situations, legal_forms=legal_forms, activities=activities, form=current_form)
 
 @bp.route('/search', methods=['POST'])
 def search():
     country = request.form.get('country').upper()
 
     try:
+        set_form_session(country, request)
         pappers_query = get_search_query(request)
         criterias = get_criterias(pappers_query, country)
         companies_found = get_number_of_companies(country, pappers_query)
