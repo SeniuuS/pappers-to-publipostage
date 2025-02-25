@@ -27,7 +27,7 @@ class PapperForm():
     def set_form(self, request):
         self.country = request.form.get(COUNTRY).upper()
         self.in_activity = request.form.get(IN_ACTIVITY, 'false')
-        self.postal_code = request.form.get(POSTAL_CODE, '').upper()
+        self.postal_code = request.form.getlist(POSTAL_CODE)
         self.legal_form = request.form.getlist(LEGAL_FORM)
         self.legal_situation = request.form.getlist(LEGAL_SITUATION)
         self.activities = request.form.getlist(ACTIVITY)

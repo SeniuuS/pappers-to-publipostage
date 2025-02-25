@@ -58,6 +58,7 @@ class France:
                 if ligne[CITY_COLUMN].strip() and not ligne[POSTAL_CODE_COLUMN] in processed_postal_codes:
                     self.postal_codes.append({"code_postal": ligne[POSTAL_CODE_COLUMN], "commune": ligne[CITY_COLUMN]})
                     processed_postal_codes.append(ligne[POSTAL_CODE_COLUMN])
+        self.postal_codes = sorted(self.postal_codes, key=lambda item: int(item['code_postal']))
 
     def init_activities(self):
         df = pd.read_excel(self.activities_file)

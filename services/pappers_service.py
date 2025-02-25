@@ -9,7 +9,7 @@ additional_query_parameter = '&targets=companies,officers,documents,publications
 def get_search_query(request):
     country = request.form.get(COUNTRY).upper()
     in_activity = request.form.get(IN_ACTIVITY, 'true')
-    postal_code = request.form.get(POSTAL_CODE, '').upper()
+    postal_code = request.form.getlist(POSTAL_CODE)
     legal_form = request.form.getlist(LEGAL_FORM)
     legal_situation = request.form.getlist(LEGAL_SITUATION)
     activities = request.form.getlist(ACTIVITY)
@@ -27,8 +27,8 @@ def get_search_query(request):
     query = f'{get_query_parameter_dictionary(country)[COUNTRY]}={country}'
     if in_activity == 'on':
         query = f'{query}&{get_query_parameter_dictionary(country)[IN_ACTIVITY]}=active'
-    if postal_code != '':
-        query = f'{query}&{get_query_parameter_dictionary(country)[POSTAL_CODE]}={postal_code}'
+    if postal_code:
+        query = f'{query}&{get_query_parameter_dictionary(country)[POSTAL_CODE]}={",".join(postal_code)}'
     if legal_form:
         query = f'{query}&{get_query_parameter_dictionary(country)[LEGAL_FORM]}={",".join(legal_form)}'
     if legal_situation:
