@@ -28,6 +28,9 @@ def get_region_codes(country):
 def get_activities(country):
     return countries[country].activities
 
+def get_activities_group(country):
+    return countries[country].activities_group
+
 def get_criteria_dictionary(country):
     return countries[country].criteria_dictionnary
 
@@ -48,6 +51,13 @@ def get_pappers_api_search_key(country):
 
 def get_pappers_api_company_key(country):
     return countries[country].pappers_api_company_key
+
+def get_activities_naf_from_group(country, activity_group):
+    found_activities = []
+    activities_group = get_activities_group(country)
+    for activity in activity_group:
+        found_activities.extend(activities_group[activity])
+    return found_activities
 
 def find_postal_code(country, search_postal_code):
     postal_codes = get_postal_codes(country)

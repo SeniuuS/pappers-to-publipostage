@@ -48,6 +48,7 @@ class Belgium:
     legal_forms = []
     legal_situations = []
     activities = []
+    activities_group = {}
 
     def __init__(self):
         self.init_postal_codes()

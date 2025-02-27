@@ -14,6 +14,7 @@ def get_search_query(request):
     legal_form = request.form.getlist(LEGAL_FORM)
     legal_situation = request.form.getlist(LEGAL_SITUATION)
     activities = request.form.getlist(ACTIVITY)
+    activity_group = request.form.getlist(ACTIVITY_GROUP)
     min_ca = request.form.get(MIN_CA, 0)
     max_ca = request.form.get(MAX_CA, 0)
     min_res = request.form.get(MIN_RES, 0)
@@ -38,8 +39,10 @@ def get_search_query(request):
         query = f'{query}&{get_query_parameter_dictionary(country)[LEGAL_FORM]}={",".join(legal_form)}'
     if legal_situation:
         query = f'{query}&{get_query_parameter_dictionary(country)[LEGAL_SITUATION]}={",".join(legal_situation)}'
-    if activities:
+    if activities and not activity_group:
         query = f'{query}&{get_query_parameter_dictionary(country)[ACTIVITY]}={",".join(activities)}'
+    if activity_group:
+        query = f'{query}&{get_query_parameter_dictionary(country)[ACTIVITY]}={",".join(get_activities_naf_from_group(country, activity_group))}'
 
     if creation_date_end_str != '':
         if creation_date_start_str == '':

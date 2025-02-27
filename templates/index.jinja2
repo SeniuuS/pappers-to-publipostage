@@ -46,6 +46,17 @@
                     {% endfor %}
                 </select>
             </div>
+            <div class="form-group mb-3">
+                <select id="activityGroup" name="activityGroup" class="selectpicker form-control" multiple
+                        data-live-search="true"
+                        data-selected-text-format="count > 4"
+                        data-actions-box="true"
+                        title="Domaine d'activité">
+                    {% for key, value in activities_group.items() %}
+                    <option value="{{ key }}" {{ "selected" if key in form.activity_group }}>{{ key }}</option>
+                    {% endfor %}
+                </select>
+            </div>
             {% endif %}
             <div class="form-group mb-3">
                 <select id="legalForm" name="legalForm" class="selectpicker form-control" multiple

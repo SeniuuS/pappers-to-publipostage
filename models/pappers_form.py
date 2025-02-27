@@ -10,6 +10,7 @@ class PapperForm():
         self.legal_form = []
         self.legal_situation = []
         self.activities = []
+        self.activity_group = []
         self.region = []
         self.min_ca = None
         self.max_ca = None
@@ -34,6 +35,7 @@ class PapperForm():
         self.legal_form = request.form.getlist(LEGAL_FORM)
         self.legal_situation = request.form.getlist(LEGAL_SITUATION)
         self.activities = request.form.getlist(ACTIVITY)
+        self.activity_group = request.form.getlist(ACTIVITY_GROUP)
         self.region = request.form.getlist(REGION)
         self.min_ca = request.form.get(MIN_CA, 0)
         self.max_ca = request.form.get(MAX_CA, 0)
@@ -58,6 +60,7 @@ class PapperForm():
         self.legal_form = json_form['legal_form']
         self.legal_situation = json_form['legal_situation']
         self.activities = json_form['activities']
+        self.activity_group = json_form['activity_group']
         self.region = json_form['region']
         self.min_ca = json_form['min_ca']
         self.max_ca = json_form['max_ca']

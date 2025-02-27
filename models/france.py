@@ -48,6 +48,7 @@ class France:
     legal_forms = []
     legal_situations = []
     activities = []
+    activities_group = {}
 
     def __init__(self):
         self.init_region_codes()
@@ -74,10 +75,12 @@ class France:
 
     def init_activities(self):
         df = pd.read_excel(self.activities_file)
-        self.activities = [{'code': str(row['Code']), 'libelle': row['Libellé NAF, FINAL']} for _, row in df.iterrows() if str(row['Code']).endswith('Z')]
-        print(self.activities)
+        self.activities = [{'code': str(row['Code']), 'libelle': row['Libellé NAF, FINAL'], 'group': row['Groupe']} for _, row in df.iterrows() if str(row['Code']).endswith('Z')]
+        for activity in self.activities:
+            if activity['group'] not in self.activities_group:
+                self.activities_group[activity['group']] = []
+            self.activities_group[activity['group']].append(activity['code'])
 
     def init_legal_form(self):
         df = pd.read_excel(self.legal_form_file)
         self.legal_forms = [{'c': str(row['Code']), 'n': row['Libellé']} for _, row in df.iterrows()]
-        print(self.legal_forms)
