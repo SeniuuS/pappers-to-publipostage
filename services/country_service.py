@@ -22,6 +22,9 @@ def get_legal_forms(country):
 def get_postal_codes(country):
     return countries[country].postal_codes
 
+def get_region_codes(country):
+    return countries[country].region_codes
+
 def get_activities(country):
     return countries[country].activities
 
@@ -52,6 +55,13 @@ def find_postal_code(country, search_postal_code):
         if postal_code["code_postal"] == search_postal_code:
             return f'{postal_code["code_postal"]} - {postal_code["commune"]}'
     return search_postal_code
+
+def find_region_code(country, search_region_code):
+    region_codes = get_region_codes(country)
+    for region_code in region_codes:
+        if region_code["code"] == search_region_code:
+            return f'{region_code["name"]}'
+    return search_region_code
 
 def find_legal_situations(country, search_legal_situations):
     found_legal_situations = ""

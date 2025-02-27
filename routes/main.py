@@ -3,7 +3,8 @@ from flask import render_template, request, send_file, jsonify, redirect, url_fo
 
 from services.pappers_service import get_search_query, search_companies, get_number_of_companies, get_criterias
 from services.excel_service import create_excel_file
-from services.country_service import get_activities, get_legal_forms, get_legal_situations, get_postal_codes
+from services.country_service import get_activities, get_legal_forms, get_legal_situations, get_postal_codes, \
+    get_region_codes
 from services.authentication_service import can_do_detailed_export
 from helpers.session_helper import initialize_form_session, set_form_session
 
@@ -31,10 +32,14 @@ def index_with_error(error: Exception):
     legal_forms = get_legal_forms(country)
     activities = get_activities(country)
     postal_codes = get_postal_codes(country)
+    region_codes = get_region_codes(country)
 
     if error:
-        return render_template('index.jinja2', country=country, legal_situations=legal_situations, legal_forms=legal_forms, activities=activities, postal_codes=postal_codes, form=current_form, error=str(error))
-    return render_template('index.jinja2', country=country, legal_situations=legal_situations, legal_forms=legal_forms, activities=activities, postal_codes=postal_codes, form=current_form)
+        return render_template('index.jinja2', country=country, legal_situations=legal_situations,
+                               legal_forms=legal_forms, activities=activities, postal_codes=postal_codes, region_codes=region_codes,
+                               form=current_form, error=str(error))
+    return render_template('index.jinja2', country=country, legal_situations=legal_situations, legal_forms=legal_forms, activities=activities, postal_codes=postal_codes, region_codes=region_codes,
+                           form=current_form)
 
 @bp.route('/search', methods=['POST'])
 def search():

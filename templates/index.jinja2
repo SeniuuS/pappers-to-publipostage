@@ -34,6 +34,19 @@
                     {% endfor %}
                 </select>
             </div>
+            {% if country == 'FR' %}
+            <div class="form-group mb-3">
+                <select id="regionCode" name="regionCode" class="selectpicker form-control" multiple
+                        data-live-search="true"
+                        data-selected-text-format="count > 4"
+                        data-actions-box="true"
+                        title="Région">
+                    {% for o in region_codes %}
+                    <option value="{{ o['code'] }}" {{ "selected" if o['code'] in form.region }}>{{ o['name'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
             <div class="form-group mb-3">
                 <select id="legalForm" name="legalForm" class="selectpicker form-control" multiple
                         data-live-search="true"
@@ -45,7 +58,7 @@
                     {% endfor %}
                 </select>
             </div>
-            {% if country != 'FR' %}
+            {% if country == 'BE' %}
             <div class="form-group mb-3">
                 <select id="legalSituation" name="legalSituation" class="selectpicker form-control" multiple
                         data-live-search="true"
@@ -115,6 +128,18 @@
                     <label for="maxEff">Effectif maximum</label>
                 </div>
             </div>
+            {% if country == 'FR' %}
+            <div class="input-group mb-3">
+                <div class="form-floating">
+                    <input type="number" id="minAge" name="minAge" min="0" max="1000" class="form-control" value="{{ form.min_age }}">
+                    <label for="minAge">Âge dirigeant minimum</label>
+                </div>
+                <div class="form-floating">
+                    <input type="number" id="maxAge" name="maxAge" min="0" max="1000" class="form-control" value="{{ form.max_age }}">
+                    <label for="maxAge">Âge dirigeant maximum</label>
+                </div>
+            </div>
+            {% endif %}
             <div class="input-group has-validation mb-3">
                 <div class="form-floating">
                     <input type="date" id="creationDateStart" name="creationDateStart" class="form-control" value="{{ form.creation_date_start_str }}">

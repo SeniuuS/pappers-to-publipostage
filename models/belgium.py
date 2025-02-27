@@ -44,6 +44,7 @@ class Belgium:
     pappers_api_company_key = Config.PAPPERS_API_COMPANY_PERSO_KEY
 
     postal_codes = []
+    region_codes = []
     legal_forms = []
     legal_situations = []
     activities = []

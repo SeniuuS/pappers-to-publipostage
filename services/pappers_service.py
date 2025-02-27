@@ -9,6 +9,7 @@ additional_query_parameter = '&targets=companies,officers,documents,publications
 def get_search_query(request):
     country = request.form.get(COUNTRY).upper()
     in_activity = request.form.get(IN_ACTIVITY, 'true')
+    region_code = request.form.getlist(REGION)
     postal_code = request.form.getlist(POSTAL_CODE)
     legal_form = request.form.getlist(LEGAL_FORM)
     legal_situation = request.form.getlist(LEGAL_SITUATION)
@@ -21,6 +22,8 @@ def get_search_query(request):
     max_eff = request.form.get(MAX_EFF, 0)
     min_cap = request.form.get(MIN_CAP, 0)
     max_cap = request.form.get(MAX_CAP, 0)
+    min_age = request.form.get(MIN_AGE, 0)
+    max_age = request.form.get(MAX_AGE, 0)
     creation_date_start_str = request.form.get(CREATION_DATE_START, '')
     creation_date_end_str = request.form.get(CREATION_DATE_END, '')
 
@@ -29,6 +32,8 @@ def get_search_query(request):
         query = f'{query}&{get_query_parameter_dictionary(country)[IN_ACTIVITY]}=active'
     if postal_code:
         query = f'{query}&{get_query_parameter_dictionary(country)[POSTAL_CODE]}={",".join(postal_code)}'
+    if region_code:
+        query = f'{query}&{get_query_parameter_dictionary(country)[REGION]}={",".join(region_code)}'
     if legal_form:
         query = f'{query}&{get_query_parameter_dictionary(country)[LEGAL_FORM]}={",".join(legal_form)}'
     if legal_situation:
@@ -47,45 +52,27 @@ def get_search_query(request):
         verify_date_range(creation_date_start_str, creation_date_end_str)
         query = f'{query}&{get_query_parameter_dictionary(country)[CREATION_DATE_START]}={creation_date_start_str}&{get_query_parameter_dictionary(country)[CREATION_DATE_END]}={creation_date_end_str}'
 
-    if max_ca != '' and max_ca != 0:
-        if min_ca == '':
-            min_ca = 0
-        query = f'{query}&{get_query_parameter_dictionary(country)[MIN_CA]}={min_ca}&{get_query_parameter_dictionary(country)[MAX_CA]}={max_ca}'
-    elif min_ca != '' and min_ca != 0:
-        if max_ca == '' or max_ca == 0:
-            max_ca = 100000000000
-        query = f'{query}&{get_query_parameter_dictionary(country)[MIN_CA]}={min_ca}&{get_query_parameter_dictionary(country)[MAX_CA]}={max_ca}'
-
-    if max_res != '' and max_res != 0:
-        if min_res == '':
-            min_res = 0
-        query = f'{query}&{get_query_parameter_dictionary(country)[MIN_RES]}={min_res}&{get_query_parameter_dictionary(country)[MAX_RES]}={max_res}'
-    elif min_res != '' and min_res != 0:
-        if max_res == '' or max_res == 0:
-            max_res = 100000000000
-        query = f'{query}&{get_query_parameter_dictionary(country)[MIN_RES]}={min_res}&{get_query_parameter_dictionary(country)[MAX_RES]}={max_res}'
-
-    if max_cap != '' and max_cap != 0:
-        if min_cap == '':
-            min_cap = 0
-        query = f'{query}&{get_query_parameter_dictionary(country)[MIN_CAP]}={min_cap}&{get_query_parameter_dictionary(country)[MAX_CAP]}={max_cap}'
-    elif min_cap != '' and min_cap != 0:
-        if max_cap == '' or max_cap == 0:
-            max_cap = 100000000000
-        query = f'{query}&{get_query_parameter_dictionary(country)[MIN_CAP]}={min_cap}&{get_query_parameter_dictionary(country)[MAX_CAP]}={max_cap}'
-
-    if max_eff != '' and max_eff != 0:
-        if min_eff == '':
-            min_eff = 1
-        query = f'{query}&{get_query_parameter_dictionary(country)[MIN_EFF]}={get_workforce_number(min_eff)}&{get_query_parameter_dictionary(country)[MAX_EFF]}={get_workforce_number(max_eff)}'
-    elif min_eff != '' and min_eff != 0:
-        if max_eff == '' or max_eff == 0:
-            max_eff = 9
-        query = f'{query}&{get_query_parameter_dictionary(country)[MIN_EFF]}={get_workforce_number(min_eff)}&{get_query_parameter_dictionary(country)[MAX_EFF]}={max_eff}'
+    query = set_query_for_number(max_ca, min_ca, MIN_CA, MAX_CA, 0, 100000000000, country, query, lambda x: x)
+    query = set_query_for_number(max_res, min_res, MIN_RES, MAX_RES, 0, 100000000000, country, query, lambda x: x)
+    query = set_query_for_number(max_cap, min_cap, MIN_CAP, MAX_CAP, 0, 100000000000, country, query, lambda x: x)
+    query = set_query_for_number(max_age, min_age, MIN_AGE, MAX_AGE, 0, 1000, country, query, lambda x: x)
+    query = set_query_for_number(max_eff, min_eff, MIN_EFF, MAX_EFF, 1, 9, country, query, get_workforce_number)
 
     query = f'{query}{additional_query_parameter}'
 
     return query
+
+def set_query_for_number(max_value, min_value, min_const, max_const, min_number, max_number, country, query, modify_value_func):
+    new_query = query
+    if max_value != '' and max_value != 0:
+        if min_value == '':
+            min_value = min_number
+        new_query = f'{new_query}&{get_query_parameter_dictionary(country)[min_const]}={modify_value_func(min_value)}&{get_query_parameter_dictionary(country)[max_const]}={modify_value_func(max_value)}'
+    elif min_value != '' and min_value != 0:
+        if max_value == '' or max_value == 0:
+            max_value = max_number
+        new_query = f'{new_query}&{get_query_parameter_dictionary(country)[min_const]}={modify_value_func(min_value)}&{get_query_parameter_dictionary(country)[max_const]}={modify_value_func(max_value)}'
+    return new_query
 
 def get_workforce_number(eff):
     workforce = int(eff)
@@ -127,6 +114,8 @@ def get_value(key, value, country):
         return Config.COUNTRIES.get(value)
     if key == "postal_code":
         return find_postal_code(country, value)
+    if key == "region":
+        return find_region_code(country, value)
     if key == "local_legal_form_code":
         return find_legal_forms(country, value)
     if key == "legal_situation_code":
